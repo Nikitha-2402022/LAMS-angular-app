@@ -1,0 +1,21 @@
+<h2>Add New Leave Balance</h2>
+
+<div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+<form (ngSubmit)="onSubmit()">
+  <div>
+    <label for="employeeId">Employee ID:</label>
+    <input type="number" id="employeeId" [(ngModel)]="leaveBalance.employeeId" name="employeeId" required>
+  </div>
+  <div>
+    <label for="leaveType">Leave Type:</label>
+    <input type="text" id="leaveType" [(ngModel)]="leaveBalance.leaveType" name="leaveType" required>
+  </div>
+  <div>
+    <label for="balance">Balance:</label>
+    <input type="number" id="balance" [(ngModel)]="leaveBalance.balance" name="balance" required>
+  </div>
+  <button type="submit" class="btn btn-success" >Create Leave Balance</button>
+  <button type="button"  [routerLink]="['/leave-balances']">Cancel</button>
+</form>

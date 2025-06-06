@@ -1,0 +1,30 @@
+<table *ngIf="leaveBalances.length > 0 && !loading" class="leave-balance-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Employee ID</th>
+        <th>Employee Name</th>
+        <th>Leave Type</th>
+        <th>Balance</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let lb of leaveBalances">
+        <td>{{ lb.leaveBalanceId }}</td>
+        <td>{{ lb.employeeId }}</td>
+        <td>{{ lb.name }}</td>
+        <td>{{ lb.leaveType }}</td>
+        <td>{{ lb.balance }}</td>
+        <td>
+          <button [routerLink]="['/update-by-leave-id', lb.leaveBalanceId]">Edit</button>
+          <button 
+            type="button" 
+            class="btn btn-danger" 
+            (click)="lb.leaveBalanceId !== undefined && deleteLeaveBalance(lb.leaveBalanceId)"
+            [disabled]="lb.leaveBalanceId === undefined"
+            >Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>

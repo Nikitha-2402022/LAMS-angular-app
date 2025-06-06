@@ -1,0 +1,66 @@
+<div class="container mt-4">
+  <h2>Update Leave Balance</h2>
+
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="isLoading" class="text-center p-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Loading leave balance data...</p>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" *ngIf="!isLoading && !errorMessage">
+    <div class="mb-3">
+      <label for="employeeId" class="form-label">Employee ID:</label>
+      <input
+        type="number"
+        class="form-control"
+        id="employeeId"
+        name="employeeId"
+        [(ngModel)]="leaveBalance.employeeId"
+        required
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="leaveType" class="form-label">Leave Type:</label>
+      <input
+        type="text"
+        class="form-control"
+        id="leaveType"
+        name="leaveType"
+        [(ngModel)]="leaveBalance.leaveType"
+        required
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="balance" class="form-label">Balance:</label>
+      <input
+        type="number"
+        class="form-control"
+        id="balance"
+        name="balance"
+        [(ngModel)]="leaveBalance.balance"
+        required
+      />
+    </div>
+
+    <button type="submit" class="btn btn-primary me-2" [disabled]="!isFormDirty()">
+      Update Leave Balance
+    </button>
+    <button type="button" class="btn btn-secondary" routerLink="/leave-balances">
+      Cancel
+    </button>
+  </form>
+
+  <div *ngIf="!isLoading && errorMessage && isInvalidId()" class="alert alert-warning mt-3">
+    No valid Leave Balance ID was found in the URL. Please navigate from the list to edit an item.
+  </div>
+</div>

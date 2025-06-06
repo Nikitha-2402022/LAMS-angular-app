@@ -1,0 +1,59 @@
+<div class="container mt-4">
+  <h2>Update Leave Balance</h2>
+
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">
+    {{ successMessage }}
+  </div>
+
+  <form #updateForm="ngForm" (ngSubmit)="onSubmit()" *ngIf="leaveBalance && !errorMessage">
+    <div class="mb-3">
+      <label for="employeeId" class="form-label">Employee ID:</label>
+      <input
+        type="number"
+        class="form-control"
+        id="employeeId"
+        name="employeeId"
+        [(ngModel)]="leaveBalance.employeeId"
+        required
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="leaveType" class="form-label">Leave Type:</label>
+      <input
+        type="text"
+        class="form-control"
+        id="leaveType"
+        name="leaveType"
+        [(ngModel)]="leaveBalance.leaveType"
+        required
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="balance" class="form-label">Balance:</label>
+      <input
+        type="number"
+        class="form-control"
+        id="balance"
+        name="balance"
+        [(ngModel)]="leaveBalance.balance"
+        required
+      />
+    </div>
+
+    <button type="submit" class="btn btn-primary me-2" [disabled]="!updateForm.dirty || updateForm.invalid">
+      Update Leave Balance
+    </button>
+    <button type="button" class="btn btn-secondary" routerLink="/leave-balances">
+      Cancel
+    </button>
+  </form>
+
+  <div *ngIf="!leaveBalance && !errorMessage" class="alert alert-info mt-3">
+    Please provide a Leave Balance ID to update.
+  </div>
+</div>
