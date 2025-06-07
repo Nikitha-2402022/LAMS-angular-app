@@ -1,37 +1,42 @@
-<h2>Leave Balances</h2>
+<h2 class="mb-4">Leave Balances</h2>
 
-<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+<div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
 
-<div *ngIf="leaveBalances.length === 0 && !errorMessage">
-  <p>No leave balances found.</p>
+<div *ngIf="leaveBalances.length === 0 && !errorMessage" class="alert alert-info" role="alert">
+    <p class="mb-0">No leave balances found.</p>
 </div>
 
-<table *ngIf="leaveBalances.length > 0" class="leave-balance-table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Employee ID</th>
-      <th>Employee Name</th>
-      <th>Leave Type</th>
-      <th>Balance</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let lb of leaveBalances">
-      <td>{{ lb.leaveBalanceId }}</td>
-      <td>{{ lb.employeeId }}</td>
-      <td>{{lb.name}}</td>
-      <td>{{ lb.leaveType }}</td>
-      <td>{{ lb.balance }}</td>
-      <td>
-        <button [routerLink]="['/update-by-leave-id', lb.leaveBalanceId]">Edit (by Leave ID)</button>
-        <button type="button" class="btn btn-danger" (click)="deleteLeaveBalance(lb.leaveBalanceId)">Delete</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<div *ngIf="leaveBalances.length > 0" class="table-responsive">
+    <table class="table table-hover leave-balance-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Employee ID</th>
+                <th>Employee Name</th>
+                <th>Leave Type</th>
+                <th>Balance</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let lb of leaveBalances">
+                <td>{{ lb.leaveBalanceId }}</td>
+                <td>{{ lb.employeeId }}</td>
+                <td>{{lb.name}}</td>
+                <td>{{ lb.leaveType }}</td>
+                <td>{{ lb.balance }}</td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-primary" [routerLink]="['/update-by-leave-id', lb.leaveBalanceId]">Edit</button>
+                        <button type="button" class="btn btn-sm btn-danger" (click)="deleteLeaveBalance(lb.leaveBalanceId)">Delete</button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-<br>
-<button [routerLink]="['/add-leave-balance']">Add New Leave Balance</button>
-<button [routerLink]="['/update-by-employee-id']">Update By Employee ID</button>
+<div class="d-flex justify-content-start gap-3 mt-4">
+    <button class="btn btn-success" [routerLink]="['/add-leave-balance']">Add New Leave Balance</button>
+    <button class="btn btn-info text-white" [routerLink]="['/update-by-employee-id']">Update By Employee ID</button>
+</div>

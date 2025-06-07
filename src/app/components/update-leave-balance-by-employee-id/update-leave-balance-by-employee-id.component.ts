@@ -1,60 +1,103 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { LeaveBalanceDTO } from '../../models/leave-balance.dto';
 import { LeaveBalanceService } from '../../services/leave-balance.service';
-import { Router, RouterModule } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 
 @Component({
   selector: 'lams-update-leave-balance-by-employee-id',
   templateUrl: './update-leave-balance-by-employee-id.component.html',
   styleUrls: ['./update-leave-balance-by-employee-id.component.css'],
-  imports:[NgIf, FormsModule, RouterModule]
-
+  imports:[FormsModule,NgFor,NgIf, RouterLink]
 })
-export class UpdateLeaveBalanceByEmployeeIdComponent {
-  employeeId: number | null = null;
-  leaveBalance: LeaveBalanceDTO = {
-    employeeId: 0, // This will be set by the employeeId input
-    leaveType: '',
-    balance: 0
-  };
+export class UpdateLeaveBalanceByEmployeeIdComponent implements OnInit {
+  employeeIdToSearch: number | null = null;
+  employeeLeaveBalances: LeaveBalanceDTO[] = [];
   successMessage: string = '';
   errorMessage: string = '';
+  showBalancesTable: boolean = false;
 
   constructor(
     private leaveBalanceService: LeaveBalanceService,
-    private router: Router
-  ) { }
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
-  onSubmit(): void {
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      const idParam = params.get('employeeId');
+      if (idParam) {
+        this.employeeIdToSearch = +idParam;
+        this.searchLeaveBalances();
+      }
+    });
+  }
+
+  searchLeaveBalances(): void {
     this.successMessage = '';
     this.errorMessage = '';
+    this.employeeLeaveBalances = [];
+    this.showBalancesTable = false;
 
-    if (this.employeeId === null || this.employeeId === 0) {
-      this.errorMessage = 'Please enter a valid Employee ID.';
+    if (!this.employeeIdToSearch || this.employeeIdToSearch <= 0) {
+      this.errorMessage = 'Please enter a valid Employee ID to search.';
       return;
     }
 
-    // Ensure the employeeId in the DTO matches the input employeeId
-    this.leaveBalance.employeeId = this.employeeId;
-
-    this.leaveBalanceService.updateLeaveBalancesByEmployeeId(this.employeeId, this.leaveBalance).subscribe({
+    this.leaveBalanceService.getLeaveBalancesByEmployeeId(this.employeeIdToSearch).subscribe({
       next: (data) => {
-        this.successMessage = 'Leave Balances for Employee ID ' + this.employeeId + ' updated successfully!';
-        this.employeeId = null; // Clear employee ID
-        this.leaveBalance = { employeeId: 0, leaveType: '', balance: 0 }; // Reset form
-        this.router.navigate(['/leave-balances']); // Navigate back to list
+        if (data && data.length > 0) {
+          this.employeeLeaveBalances = data;
+          this.showBalancesTable = true;
+          this.successMessage = `Found ${data.length} leave balances for Employee ID ${this.employeeIdToSearch}.`;
+        } else {
+          this.errorMessage = `No leave balances found for Employee ID ${this.employeeIdToSearch}.`;
+        }
       },
       error: (err) => {
-        console.error('Error updating leave balances by Employee ID', err);
-        // Check for specific error message from your backend for employee not found
-        if (err.status === 404 && err.error && err.error.message && err.error.message.includes('Employee ID')) {
-          this.errorMessage = err.error.message;
-        } else {
-          this.errorMessage = 'Failed to update leave balances for Employee ID ' + this.employeeId + '. Please check your input.';
-        }
+        console.error('Error fetching leave balances:', err);
+        this.errorMessage =
+          err.status === 404
+            ? `Employee ID ${this.employeeIdToSearch} not found or has no leave balances.`
+            : 'Failed to load leave balances. Please try again later.';
       }
     });
+  }
+
+  saveAllChanges(): void {
+    let successfulUpdates = 0;
+    let failedUpdates = 0;
+    const totalBalances = this.employeeLeaveBalances.length;
+
+    const updateRequests = this.employeeLeaveBalances.map(lb => {
+      if (lb.leaveBalanceId) {
+        return this.leaveBalanceService.updateLeaveBalancesByEmployeeId(lb.leaveBalanceId, lb).toPromise()
+          .then(() => successfulUpdates++)
+          .catch(() => failedUpdates++);
+      }
+      return Promise.resolve();
+    });
+
+    Promise.all(updateRequests).then(() => {
+      this.handleBatchUpdateCompletion(successfulUpdates, failedUpdates, totalBalances);
+    });
+  }
+
+  private handleBatchUpdateCompletion(successful: number, failed: number, total: number): void {
+    this.successMessage =
+      failed === 0
+        ? `All ${successful} leave balances updated successfully for Employee ID ${this.employeeIdToSearch}!`
+        : `Updated ${successful} out of ${total} leave balances. ${failed} updates failed. Please check console for details.`;
+
+    setTimeout(() => {
+      if (failed === 0) {
+        this.router.navigate(['/leave-balances']);
+      }
+    }, 2000);
+  }
+
+  cancelEdit(): void {
+    this.router.navigate(['/leave-balances']);
   }
 }

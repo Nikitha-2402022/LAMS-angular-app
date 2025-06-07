@@ -1,59 +1,64 @@
 <div class="container mt-4">
-  <h2>Update Leave Balance</h2>
+  <h2 class="mb-4">Update Leave Balances by Employee ID</h2>
 
-  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-    {{ errorMessage }}
-  </div>
-  <div *ngIf="successMessage" class="alert alert-success" role="alert">
-    {{ successMessage }}
-  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">{{ successMessage }}</div>
 
-  <form #updateForm="ngForm" (ngSubmit)="onSubmit()" *ngIf="leaveBalance && !errorMessage">
+  <form (ngSubmit)="searchLeaveBalances()">
     <div class="mb-3">
-      <label for="employeeId" class="form-label">Employee ID:</label>
-      <input
-        type="number"
-        class="form-control"
-        id="employeeId"
-        name="employeeId"
-        [(ngModel)]="leaveBalance.employeeId"
-        required
-      />
+      <label for="employeeIdToSearch" class="form-label">Enter Employee ID:</label>
+      <div class="input-group">
+        <input
+          type="number"
+          class="form-control"
+          id="employeeIdToSearch"
+          [(ngModel)]="employeeIdToSearch"
+          name="employeeIdToSearch"
+          placeholder="e.g., 101"
+          required
+        >
+        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
     </div>
-
-    <div class="mb-3">
-      <label for="leaveType" class="form-label">Leave Type:</label>
-      <input
-        type="text"
-        class="form-control"
-        id="leaveType"
-        name="leaveType"
-        [(ngModel)]="leaveBalance.leaveType"
-        required
-      />
-    </div>
-
-    <div class="mb-3">
-      <label for="balance" class="form-label">Balance:</label>
-      <input
-        type="number"
-        class="form-control"
-        id="balance"
-        name="balance"
-        [(ngModel)]="leaveBalance.balance"
-        required
-      />
-    </div>
-
-    <button type="submit" class="btn btn-primary me-2" [disabled]="!updateForm.dirty || updateForm.invalid">
-      Update Leave Balance
-    </button>
-    <button type="button" class="btn btn-secondary" routerLink="/leave-balances">
-      Cancel
-    </button>
   </form>
 
-  <div *ngIf="!leaveBalance && !errorMessage" class="alert alert-info mt-3">
-    Please provide a Leave Balance ID to update.
+  <hr *ngIf="showBalancesTable">
+
+  <div *ngIf="showBalancesTable && employeeLeaveBalances.length > 0">
+    <h3 class="mt-4">Leave Balances for Employee ID: {{ employeeIdToSearch }}</h3>
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>Leave Balance ID</th>
+            <th>Leave Type</th>
+            <th>Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let lb of employeeLeaveBalances">
+            <td>{{ lb.leaveBalanceId }}</td>
+            <td>{{ lb.leaveType }}</td>
+            <td>
+              <input type="number" class="form-control" [(ngModel)]="lb.balance" name="balance-{{lb.leaveBalanceId}}">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button type="button" class="btn btn-success" (click)="saveAllChanges()">Save All Changes</button>
+      <button type="button" class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+    </div>
+  </div>
+
+  <div *ngIf="showBalancesTable && employeeLeaveBalances.length === 0">
+    <div class="alert alert-info mt-3" role="alert">
+      No leave balances found for Employee ID {{ employeeIdToSearch }}.
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <button class="btn btn-info text-white" [routerLink]="['/leave-balances']">Back to Leave Balance List</button>
   </div>
 </div>

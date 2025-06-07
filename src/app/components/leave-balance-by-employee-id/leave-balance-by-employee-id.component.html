@@ -1,30 +1,85 @@
-<table *ngIf="leaveBalances.length > 0 && !loading" class="leave-balance-table">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Employee ID</th>
-        <th>Employee Name</th>
-        <th>Leave Type</th>
-        <th>Balance</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let lb of leaveBalances">
-        <td>{{ lb.leaveBalanceId }}</td>
-        <td>{{ lb.employeeId }}</td>
-        <td>{{ lb.name }}</td>
-        <td>{{ lb.leaveType }}</td>
-        <td>{{ lb.balance }}</td>
-        <td>
-          <button [routerLink]="['/update-by-leave-id', lb.leaveBalanceId]">Edit</button>
-          <button 
-            type="button" 
-            class="btn btn-danger" 
-            (click)="lb.leaveBalanceId !== undefined && deleteLeaveBalance(lb.leaveBalanceId)"
-            [disabled]="lb.leaveBalanceId === undefined"
-            >Delete</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<div class="container mt-4">
+  <h2 class="mb-4">Employee Leave Balances</h2>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">Find Employee Leave Balances</h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="fetchLeaveBalances()">
+        <div class="mb-3">
+          <label for="employeeIdInput" class="form-label">Enter Employee ID:</label>
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              id="employeeIdInput"
+              [(ngModel)]="employeeIdInput"
+              name="employeeIdInput"
+              placeholder="e.g., 101"
+              required
+              (keyup.enter)="fetchLeaveBalances()" >
+            <button type="submit" class="btn btn-primary">Search</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="alert alert-info" role="status">
+    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+    Loading leave balances...
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="leaveBalances.length > 0 && !loading" class="table-responsive">
+    <table class="table table-hover leave-balance-table">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Employee ID</th>
+          <th>Employee Name</th>
+          <th>Leave Type</th>
+          <th>Balance</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let lb of leaveBalances">
+          <td>{{ lb.leaveBalanceId }}</td>
+          <td>{{ lb.employeeId }}</td>
+          <td>{{ lb.name }}</td>
+          <td>{{ lb.leaveType }}</td>
+          <td>{{ lb.balance }}</td>
+          <td>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-primary" [routerLink]="['/update-by-leave-id', lb.leaveBalanceId]">Edit</button>
+              
+              <button
+                type="button"
+                class="btn btn-sm btn-danger"
+                (click)="lb.leaveBalanceId !== undefined && deleteLeaveBalance(lb.leaveBalanceId)"
+                [disabled]="lb.leaveBalanceId === undefined"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!loading && employeeIdInput && leaveBalances.length === 0 && !errorMessage" class="alert alert-info mt-3">
+      No leave balances found for Employee ID: {{ employeeIdInput }}.
+  </div>
+
+  <hr class="mt-4">
+
+  <div class="d-flex justify-content-end mt-3">
+    <button class="btn btn-secondary" (click)="goToLeaveBalancesList()">Back to All Leave Balances</button>
+  </div>
+</div>

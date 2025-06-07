@@ -1,12 +1,9 @@
-// src/app/leave-balance-by-employee/leave-balance-by-employee.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LeaveBalanceDTO } from '../../models/leave-balance.dto';
 import { LeaveBalanceService } from '../../services/leave-balance.service';
-
 
 @Component({
   selector: 'app-leave-balance-by-employee',
@@ -17,22 +14,19 @@ import { LeaveBalanceService } from '../../services/leave-balance.service';
     RouterModule
   ],
   templateUrl: './leave-balance-by-employee-id.component.html',
-  styleUrls: ['./leave-balance-by-employee-id.component.css'],
-  providers: [LeaveBalanceService]
+  styleUrls: ['./leave-balance-by-employee-id.component.css']
 })
 export class LeaveBalanceByEmployeeIdComponent implements OnInit {
   employeeIdInput: string = '';
-
   leaveBalances: LeaveBalanceDTO[] = [];
-
   errorMessage: string | null = null;
-
   loading: boolean = false;
 
   constructor(
     private leaveBalanceService: LeaveBalanceService,
-    private route: ActivatedRoute
-  ) { }
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -61,8 +55,8 @@ export class LeaveBalanceByEmployeeIdComponent implements OnInit {
       .subscribe({
         next: (data: LeaveBalanceDTO | LeaveBalanceDTO[]) => {
           this.leaveBalances = Array.isArray(data) ? data : [data];
-
           this.loading = false;
+
           if (this.leaveBalances.length === 0) {
             this.errorMessage = `No leave balances found for Employee ID: ${idAsNumber}.`;
           }
@@ -76,18 +70,26 @@ export class LeaveBalanceByEmployeeIdComponent implements OnInit {
   }
 
   deleteLeaveBalance(id: number): void {
-      if (confirm('Are you sure you want to delete this leave balance?')) {
-          this.leaveBalanceService.deleteLeaveBalance(id).subscribe({
-              next: () => {
-                  this.leaveBalances = this.leaveBalances.filter(lb => lb.leaveBalanceId !== id);
-                  this.errorMessage = null;
-                  console.log(`Leave balance with ID ${id} deleted successfully.`);
-              },
-              error: (err) => {
-                  console.error('Error deleting leave balance:', err);
-                  this.errorMessage = err.error?.message || err.message || 'Failed to delete leave balance.';
-              }
-          });
-      }
+    if (confirm('Are you sure you want to delete this leave balance?')) {
+      this.leaveBalanceService.deleteLeaveBalance(id).subscribe({
+        next: () => {
+          this.leaveBalances = this.leaveBalances.filter(lb => lb.leaveBalanceId !== id);
+          this.errorMessage = null;
+          console.log(`Leave balance with ID ${id} deleted successfully.`);
+          
+          if (this.leaveBalances.length === 0) {
+            this.employeeIdInput = '';
+          }
+        },
+        error: (err) => {
+          console.error('Error deleting leave balance:', err);
+          this.errorMessage = err.error?.message || err.message || 'Failed to delete leave balance.';
+        }
+      });
+    }
+  }
+
+  goToLeaveBalancesList(): void {
+    this.router.navigate(['/leave-balances']);
   }
 }

@@ -56,5 +56,5 @@ export class LeaveBalanceListComponent implements OnInit {
         }
       });
     }
-  }
+  }  
 }
