@@ -71,8 +71,8 @@ export class UpdateLeaveBalanceByEmployeeIdComponent implements OnInit {
     const totalBalances = this.employeeLeaveBalances.length;
 
     const updateRequests = this.employeeLeaveBalances.map(lb => {
-      if (lb.leaveBalanceId) {
-        return this.leaveBalanceService.updateLeaveBalancesByEmployeeId(lb.leaveBalanceId, lb).toPromise()
+      if (lb.employeeId) {
+        return this.leaveBalanceService.updateLeaveBalancesByEmployeeId(lb.employeeId, lb).toPromise()
           .then(() => successfulUpdates++)
           .catch(() => failedUpdates++);
       }
