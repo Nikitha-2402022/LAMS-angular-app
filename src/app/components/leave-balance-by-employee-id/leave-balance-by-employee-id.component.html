@@ -8,23 +8,22 @@
     <div class="card-body">
       <form (ngSubmit)="fetchLeaveBalances()">
         <div class="mb-3">
-          <label for="employeeIdInput" class="form-label">Enter Employee ID:</label>
+          <label for="employeeIdToSearch" class="form-label">Enter Employee ID:</label>
           <div class="input-group">
             <input
-              type="text"
+              type="number"
               class="form-control"
-              id="employeeIdInput"
+              id="employeeIdToSearch"
               [(ngModel)]="employeeIdInput"
-              name="employeeIdInput"
+              name="employeeIdToSearch"
               placeholder="e.g., 101"
               required
-              (keyup.enter)="fetchLeaveBalances()" >
+            >
             <button type="submit" class="btn btn-primary">Search</button>
           </div>
         </div>
       </form>
-    </div>
-  </div>
+      
 
   <div *ngIf="loading" class="alert alert-info" role="status">
     <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
@@ -73,8 +72,8 @@
     </table>
   </div>
 
-  <div *ngIf="!loading && employeeIdInput && leaveBalances.length === 0 && !errorMessage" class="alert alert-info mt-3">
-      No leave balances found for Employee ID: {{ employeeIdInput }}.
+  <div *ngIf="!loading && searchTriggered && leaveBalances.length === 0 && !errorMessage" class="alert alert-info mt-3">
+    No leave balances found for Employee ID: {{ employeeIdInput }}.
   </div>
 
   <hr class="mt-4">

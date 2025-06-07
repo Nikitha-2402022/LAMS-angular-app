@@ -21,6 +21,7 @@ export class LeaveBalanceByEmployeeIdComponent implements OnInit {
   leaveBalances: LeaveBalanceDTO[] = [];
   errorMessage: string | null = null;
   loading: boolean = false;
+  searchTriggered: boolean = false
 
   constructor(
     private leaveBalanceService: LeaveBalanceService,
@@ -39,6 +40,7 @@ export class LeaveBalanceByEmployeeIdComponent implements OnInit {
   }
 
   fetchLeaveBalances(): void {
+    this.searchTriggered = true; 
     const idAsNumber = parseInt(this.employeeIdInput, 10);
 
     if (isNaN(idAsNumber) || idAsNumber <= 0) {
