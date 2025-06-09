@@ -59,10 +59,8 @@
             width: 100%; /* Full width */
             z-index: 1030; /* Ensure it's above other content */
             border-bottom: 1px solid var(--border-light);
-
-            /* Default padding, matching collapsed sidebar width for dynamic shift */
-            padding-left: var(--sidebar-collapsed-width);
-            transition: padding-left 0.3s ease-in-out; /* Smooth transition for padding */
+            padding-left: var(--sidebar-collapsed-width); /* Default padding for header content */
+            transition: padding-left 0.3s ease-in-out;
         }
 
         /* When sidebar is open/hovered, shift header content to align */
@@ -92,10 +90,10 @@
             width: var(--sidebar-collapsed-width); /* Initial collapsed width */
             background-color: var(--sidebar-bg-color); /* Distinct sidebar background */
             position: fixed; /* Fixed relative to viewport */
-            top: var(--header-height); /* Position right below the header */
+            top: 0; /* Starts from the very top to occupy header space */
             bottom: 0; /* Extends to the bottom of the viewport */
             left: 0;
-            z-index: 1020; /* Below header, above main content card */
+            z-index: 1035; /* Above header */
             overflow-y: auto; /* Enable scrolling for many menu items */
             box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
             border-right: 1px solid var(--border-light);
@@ -125,7 +123,7 @@
                 padding: 0.85rem 1.5rem;
             }
             /* Shift main content on hover */
-            .sidebar:not(.pinned):hover + .main-content {
+            .sidebar:not(.pinned):hover ~ .main-content { /* Use general sibling combinator */
                 margin-left: var(--sidebar-expanded-width);
             }
             /* Shift header on hover */
@@ -284,6 +282,7 @@
             /* Default margin, matching collapsed sidebar width for dynamic shift */
             margin-left: var(--sidebar-collapsed-width);
             transition: margin-left 0.3s ease-in-out; /* Smooth margin transition */
+            margin-top: var(--header-height); /* Push main content down below the header */
         }
 
         /* Shift main content area when sidebar is open (pinned or hovered) */
@@ -366,6 +365,7 @@
             .main-content {
                 margin-left: 0; /* No margin on mobile */
                 height: auto; /* Let content height adjust naturally */
+                margin-top: var(--header-height); /* Maintain margin-top on mobile */
             }
 
             /* Ensure desktop-specific shifts are removed on mobile */
