@@ -3,59 +3,530 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leave Management Dashboard</title>
-
+    <title>Leave Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --header-height: 60px;
+            --sidebar-collapsed-width: 80px;
+            --sidebar-expanded-width: 250px; /* Width when fully expanded/hovered */
 
-    
+            /* Light Color Palette */
+            --primary-light-blue: #e0f2f7; /* Very light blue for subtle accents */
+            --accent-blue: #007bff; /* Standard Bootstrap blue for primary actions/active states */
+            --text-dark: #343a40; /* Dark gray for main text */
+            --text-light: #6c757d; /* Medium gray for secondary text */
+            --bg-light: #f8f9fa; /* Off-white for general backgrounds */
+            --bg-lighter: #ffffff; /* Pure white for cards/elements */
+            --border-light: #dee2e6; /* Light gray for borders */
+
+            /* Sidebar Colors */
+            --sidebar-bg-color: #f0f2f5; /* A slightly darker light gray for sidebar when collapsed */
+            --sidebar-text-inactive: #5a6268;
+            --sidebar-text-hover: #0056b3;
+            --sidebar-active-bg: #e0f2f7;
+            --sidebar-active-text: #007bff;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            overflow-x: hidden; /* Prevent horizontal scrollbar during transitions */
+            color: var(--text-dark);
+        }
+
+        /* --- Main App Container (Wraps Header and Page Content) --- */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Top App Header (Fixed at the top, holds LAMS title) --- */
+        .app-header {
+            background-color: var(--bg-lighter);
+            color: var(--text-dark);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: fixed; /* Fixed at the top */
+            top: 0;
+            left: 0;
+            width: 100%; /* Full width */
+            z-index: 1030; /* Ensure it's above other content */
+            border-bottom: 1px solid var(--border-light);
+
+            /* Default padding, matching collapsed sidebar width for dynamic shift */
+            padding-left: var(--sidebar-collapsed-width);
+            transition: padding-left 0.3s ease-in-out; /* Smooth transition for padding */
+        }
+
+        /* When sidebar is open/hovered, shift header content to align */
+        .app-container.sidebar-open .app-header {
+            padding-left: var(--sidebar-expanded-width); /* Shift header content right */
+        }
+
+        .app-header .app-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin: 0;
+            line-height: 1;
+            white-space: nowrap; /* Prevent wrapping */
+        }
+
+        /* --- Main Page Content Wrapper (holds sidebar and main content below header) --- */
+        .page-content-wrapper {
+            display: flex; /* Sidebar and main content side-by-side */
+            flex-grow: 1; /* Takes remaining vertical space */
+            margin-top: var(--header-height); /* Push content down below fixed header */
+            position: relative; /* For absolutely positioned sidebar */
+        }
+
+        /* --- Sidebar Styling (Fixed, Toggleable) --- */
+        .sidebar {
+            width: var(--sidebar-collapsed-width); /* Initial collapsed width */
+            background-color: var(--sidebar-bg-color); /* Distinct sidebar background */
+            position: fixed; /* Fixed relative to viewport */
+            top: var(--header-height); /* Position right below the header */
+            bottom: 0; /* Extends to the bottom of the viewport */
+            left: 0;
+            z-index: 1020; /* Below header, above main content card */
+            overflow-y: auto; /* Enable scrolling for many menu items */
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+            border-right: 1px solid var(--border-light);
+            flex-shrink: 0; /* Prevent sidebar from shrinking */
+
+            transition: width 0.3s ease-in-out, background-color 0.3s ease-in-out; /* Smooth width & color transition */
+        }
+
+        /* Desktop: Hover to expand (only if not pinned) */
+        @media (min-width: 769px) {
+            .sidebar:not(.pinned):hover {
+                width: var(--sidebar-expanded-width);
+                background-color: var(--bg-lighter);
+            }
+            .sidebar:not(.pinned):hover .sidebar-top-section {
+                justify-content: flex-start;
+            }
+            .sidebar:not(.pinned):hover .sidebar-top-section .lm-text {
+                opacity: 1;
+                display: block;
+            }
+            .sidebar:not(.pinned):hover .sidebar-menu .nav-link span {
+                display: inline;
+            }
+            .sidebar:not(.pinned):hover .sidebar-menu .nav-link {
+                justify-content: flex-start;
+                padding: 0.85rem 1.5rem;
+            }
+            /* Shift main content on hover */
+            .sidebar:not(.pinned):hover + .main-content {
+                margin-left: var(--sidebar-expanded-width);
+            }
+            /* Shift header on hover */
+            .app-container:has(.sidebar:not(.pinned):hover) .app-header {
+                padding-left: var(--sidebar-expanded-width);
+            }
+        }
+
+        /* Desktop: Pinned state */
+        .sidebar.pinned {
+            width: var(--sidebar-expanded-width);
+            background-color: var(--bg-lighter);
+        }
+        .sidebar.pinned .sidebar-top-section {
+            justify-content: flex-start;
+        }
+        .sidebar.pinned .sidebar-top-section .lm-text {
+            opacity: 1;
+            display: block;
+        }
+        .sidebar.pinned .sidebar-menu .nav-link span {
+            display: inline;
+        }
+        .sidebar.pinned .sidebar-menu .nav-link {
+            justify-content: flex-start;
+            padding: 0.85rem 1.5rem;
+        }
+
+        /* Adjust app-container based on pinned state for proper shifting */
+        .app-container.sidebar-open .sidebar {
+            /* This class is now primarily for mobile offcanvas, but we keep it for consistency */
+            width: var(--sidebar-expanded-width);
+        }
+
+        /* --- Sidebar Top Section (holds the toggle button and LM text) --- */
+        .sidebar-top-section {
+            height: var(--header-height); /* Matches main header height */
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Default: Center the toggle button when collapsed */
+            border-bottom: 1px solid var(--border-light);
+            background-color: var(--bg-lighter); /* Match header background for seamless look */
+            position: sticky; /* Make it sticky within the sidebar for scrolling */
+            top: 0;
+            z-index: 1025; /* Ensure it's above other sidebar content */
+            padding: 0 1rem; /* Padding for content inside */
+            gap: 0.5rem; /* Space between icon and LM text */
+            transition: justify-content 0.3s ease-in-out; /* Smooth transition for alignment */
+        }
+
+        /* --- Menu Toggle Button (3 horizontal lines) --- */
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            cursor: pointer;
+            padding: 0; /* Remove default padding from button */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px; /* Fixed width for the icon area */
+            height: 48px; /* Fixed height for the icon area */
+            border-radius: 50%; /* Make it circular */
+            transition: background-color 0.2s ease-in-out, transform 0.3s ease-in-out; /* For hover effect and optional rotation */
+        }
+
+        .menu-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.05); /* Subtle hover effect */
+        }
+
+        /* Optional: Rotate icon when sidebar is open or pinned */
+        .sidebar.pinned .menu-toggle i,
+        .sidebar.offcanvas-open .menu-toggle i { /* Add offcanvas-open for mobile */
+            transform: rotate(90deg); /* Example: rotate icon */
+        }
+
+        /* LM Text next to icon in expanded sidebar */
+        .sidebar-top-section .lm-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.2s ease-in-out; /* Smooth fade in/out */
+            line-height: 1; /* Align vertically */
+            display: none; /* Hidden by default */
+        }
+
+        /* --- Sidebar Navigation Menu --- */
+        .sidebar-menu {
+            list-style: none; /* Remove default list styling */
+            padding: 1rem 0; /* Top/bottom padding for menu items */
+            margin: 0;
+        }
+
+        .sidebar-menu .nav-item {
+            margin-bottom: 0.25rem; /* Small gap between items */
+        }
+
+        .sidebar-menu .nav-link {
+            color: var(--sidebar-text-inactive);
+            padding: 0.85rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+            white-space: nowrap; /* Prevent text wrapping */
+            overflow: hidden; /* Hide overflow */
+            text-overflow: ellipsis; /* Add ellipsis for long text */
+        }
+
+        .sidebar-menu .nav-link i {
+            min-width: 24px; /* Ensure icon takes consistent space */
+            font-size: 1.2rem;
+            color: var(--text-light); /* Default icon color */
+            transition: color 0.2s ease-in-out;
+        }
+
+        .sidebar-menu .nav-link:hover {
+            background-color: var(--primary-light-blue);
+            color: var(--sidebar-text-hover);
+        }
+        .sidebar-menu .nav-link:hover i {
+            color: var(--sidebar-text-hover);
+        }
+
+        .sidebar-menu .nav-link.active-link {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active-text);
+            font-weight: 500;
+            border-left: 4px solid var(--accent-blue);
+            padding-left: 1.25rem; /* Adjust padding due to border */
+        }
+        .sidebar-menu .nav-link.active-link i {
+            color: var(--sidebar-active-text);
+        }
+
+        /* Hide text in collapsed sidebar (default state and when not pinned/hovered) */
+        .sidebar:not(.pinned) .sidebar-menu .nav-link span {
+            display: none;
+        }
+        .sidebar:not(.pinned) .sidebar-menu .nav-link {
+            justify-content: center; /* Center icon when text is hidden */
+            padding: 0.85rem 0.5rem; /* Adjust padding for icon-only state */
+        }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            flex-grow: 1; /* Takes all remaining horizontal space */
+            padding: 1.5rem; /* Padding around the content card */
+            overflow-y: auto; /* Allow content to scroll */
+            background-color: var(--bg-light); /* Matches body background */
+            /* Default margin, matching collapsed sidebar width for dynamic shift */
+            margin-left: var(--sidebar-collapsed-width);
+            transition: margin-left 0.3s ease-in-out; /* Smooth margin transition */
+        }
+
+        /* Shift main content area when sidebar is open (pinned or hovered) */
+        .app-container.sidebar-open .main-content, /* For pinned state */
+        .sidebar.pinned + .main-content { /* For pinned state (direct sibling) */
+            margin-left: var(--sidebar-expanded-width); /* Shift content to the right */
+        }
+
+        .content-card {
+            background-color: var(--bg-lighter);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            min-height: calc(100vh - var(--header-height) - 3rem); /* Adjust to fill available space considering header and main-content padding */
+        }
+
+        /* --- Responsive Adjustments (for mobile) --- */
+        @media (max-width: 768px) {
+            .app-header {
+                padding-left: 0; /* No left padding for mobile header */
+                justify-content: center; /* Center title */
+            }
+            .app-header .app-title {
+                font-size: 1.5rem;
+            }
+
+            .sidebar {
+                width: 0; /* Hidden by default for offcanvas */
+                position: fixed; /* Overlay content */
+                top: 0; /* Starts from very top for offcanvas */
+                left: -250px; /* Off-screen */
+                height: 100vh; /* Full viewport height */
+                transition: left 0.3s ease-in-out;
+                z-index: 1040; /* Above app header when open */
+                box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+                border-right: none; /* No border for offcanvas edge */
+                background-color: var(--bg-lighter); /* White for mobile offcanvas */
+            }
+
+            /* Offcanvas state (controlled by JS adding 'offcanvas-open' class) */
+            .sidebar.offcanvas-open {
+                left: 0;
+                width: var(--sidebar-expanded-width);
+            }
+
+            /* Mobile-specific adjustments for sidebar-top-section and menu-toggle */
+            .sidebar-top-section {
+                height: var(--header-height); /* Keep height */
+                border-bottom: 1px solid var(--border-light); /* Re-add border if desired for mobile offcanvas header */
+                background-color: var(--bg-lighter); /* Match header background */
+                position: relative; /* Reset sticky for offcanvas */
+                justify-content: flex-start; /* Always aligned to start on mobile */
+                padding: 0 1rem; /* Add horizontal padding for a button feel */
+            }
+            .menu-toggle {
+                /* On mobile, the toggle is part of the offcanvas's internal header */
+                width: auto; /* Take natural width */
+                height: auto;
+                border-radius: 0;
+                background-color: transparent; /* No background on mobile toggle */
+                padding: 0;
+            }
+            .menu-toggle:hover {
+                background-color: transparent; /* No hover effect on mobile toggle */
+            }
+            .sidebar-top-section .lm-text {
+                display: block; /* Always visible on mobile, even if sidebar-top-section is not expanded */
+                opacity: 1;
+            }
+
+            /* Ensure text is visible in sidebar menu when offcanvas is open */
+            .sidebar-menu .nav-link span {
+                display: inline;
+            }
+            .sidebar-menu .nav-link {
+                justify-content: flex-start;
+                padding: 0.85rem 1.5rem;
+            }
+
+            .main-content {
+                margin-left: 0; /* No margin on mobile */
+                height: auto; /* Let content height adjust naturally */
+            }
+
+            /* Ensure desktop-specific shifts are removed on mobile */
+            .app-container.sidebar-open .app-header,
+            .app-container.sidebar-open .main-content {
+                padding-left: 0;
+                margin-left: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header class="app-header">
-        <button class="navbar-toggler-sidebar" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas" aria-controls="sidebarOffcanvas">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="app-title">LAMS</div>
+    <div class="app-container" id="appContainer">
+        <header class="app-header" id="appHeader">
+            <div class="app-title">Leave Management System</div>
         </header>
 
-    <div class="offcanvas offcanvas-start sidebar-offcanvas" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Leave Management</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body d-flex flex-column">
-            <ul class="nav nav-pills flex-column mb-auto">
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="/leave-balances" routerLinkActive="active-link" ariaCurrentWhenActive="page" data-bs-dismiss="offcanvas" data-bs-target="#sidebarOffcanvas">
-                        All Leave Balances
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="/add-leave-balance" routerLinkActive="active-link" ariaCurrentWhenActive="page" data-bs-dismiss="offcanvas" data-bs-target="#sidebarOffcanvas">
-                        Add New Leave
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="/search-leave-by-employee" routerLinkActive="active-link" ariaCurrentWhenActive="page" data-bs-dismiss="offcanvas" data-bs-target="#sidebarOffcanvas">
-                        Leave By Employee ID
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" routerLink="/update-by-employee-id" routerLinkActive="active-link" ariaCurrentWhenActive="page" data-bs-dismiss="offcanvas" data-bs-target="#sidebarOffcanvas">
-                        Update By Employee ID
-                    </a>
-                </li>
-            </ul>
+        <div class="page-content-wrapper">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-top-section">
+                    <button class="menu-toggle" type="button" aria-controls="sidebar" aria-expanded="false">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <span class="lm-text">LAMS</span>
+                </div>
+                <ul class="sidebar-menu">
+                    <li class="nav-item">
+                        <a class="nav-link active-link" routerLink="/leave-balances" routerLinkActive="active-link" ariaCurrentWhenActive="page">
+                            <i class="bi bi-calendar-check"></i> <span>All Leave Balances</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="/add-leave-balance" routerLinkActive="active-link" ariaCurrentWhenActive="page">
+                            <i class="bi bi-plus-circle"></i> <span>Add New Leave</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="/search-leave-by-employee" routerLinkActive="active-link" ariaCurrentWhenActive="page">
+                            <i class="bi bi-search"></i> <span>Leave By Employee ID</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" routerLink="/update-by-employee-id" routerLinkActive="active-link" ariaCurrentWhenActive="page">
+                            <i class="bi bi-pencil-square"></i> <span>Update By Employee ID</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <main class="main-content">
+                <div class="content-card">
+                    <router-outlet></router-outlet>
+                   
+                </div>
+            </main>
         </div>
     </div>
 
-    <main class="main-content-wrapper">
-        <div class="content-card">
-            <router-outlet></router-outlet>
-        </div>
-    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhyGkcIdslK1eP6MdfJ9b2eL" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const appContainer = document.getElementById('appContainer');
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.querySelector('.menu-toggle');
+            const navLinks = document.querySelectorAll('.sidebar-menu .nav-link');
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eP6MdfJ9b2eL" crossorigin="anonymous"></script>
+            // --- Active Link Logic (for demo without Angular) ---
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    navLinks.forEach(l => l.classList.remove('active-link'));
+                    this.classList.add('active-link');
+
+                    // If on mobile (offcanvas active), close sidebar after click
+                    if (window.innerWidth <= 768 && sidebar.classList.contains('offcanvas-open')) {
+                        sidebar.classList.remove('offcanvas-open');
+                        menuToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            });
+
+            // --- Sidebar Toggle/Pin Logic ---
+            let isSidebarPinned = false; // State to track if the sidebar is "pinned" open
+
+            function toggleSidebarPin() {
+                isSidebarPinned = !isSidebarPinned;
+                if (isSidebarPinned) {
+                    sidebar.classList.add('pinned');
+                    appContainer.classList.add('sidebar-open'); // Shift header and main content
+                    menuToggle.setAttribute('aria-expanded', 'true');
+                } else {
+                    sidebar.classList.remove('pinned');
+                    appContainer.classList.remove('sidebar-open'); // Shift header and main content back
+                    menuToggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+
+            function handleDesktopSidebarState() {
+                if (isSidebarPinned) {
+                    sidebar.classList.add('pinned');
+                    appContainer.classList.add('sidebar-open');
+                } else {
+                    sidebar.classList.remove('pinned');
+                    appContainer.classList.remove('sidebar-open');
+                }
+                sidebar.classList.remove('offcanvas-open'); // Ensure mobile class is off
+                menuToggle.setAttribute('aria-expanded', isSidebarPinned);
+            }
+
+            function handleMobileSidebarState() {
+                // On mobile, the sidebar always starts closed (offcanvas)
+                sidebar.classList.remove('pinned'); // Remove pinned state if coming from desktop
+                sidebar.classList.remove('offcanvas-open'); // Ensure it's hidden initially
+                appContainer.classList.remove('sidebar-open'); // Remove desktop-related shifts
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }
+
+            menuToggle.addEventListener('click', function() {
+                if (window.innerWidth > 768) { // Desktop behavior: Toggle pin state
+                    toggleSidebarPin();
+                } else { // Mobile behavior: Toggle offcanvas
+                    const isOffcanvasOpen = sidebar.classList.contains('offcanvas-open');
+                    sidebar.classList.toggle('offcanvas-open');
+                    menuToggle.setAttribute('aria-expanded', !isOffcanvasOpen); // Update aria-expanded
+                    // On mobile, we might want a backdrop, or simply let the content be obscured
+                    // For this example, we don't add a backdrop.
+                }
+            });
+
+            // Desktop-specific hover functionality (only if not pinned)
+            sidebar.addEventListener('mouseenter', function() {
+                if (window.innerWidth > 768 && !isSidebarPinned) {
+                    appContainer.classList.add('sidebar-open');
+                }
+            });
+
+            sidebar.addEventListener('mouseleave', function() {
+                if (window.innerWidth > 768 && !isSidebarPinned) {
+                    appContainer.classList.remove('sidebar-open');
+                }
+            });
+
+            // --- Handle window resize: Reset sidebar state ---
+            let currentWidth = window.innerWidth;
+            window.addEventListener('resize', function() {
+                if (window.innerWidth !== currentWidth) { // Only run if width actually changed
+                    if (window.innerWidth > 768) {
+                        handleDesktopSidebarState();
+                    } else {
+                        handleMobileSidebarState();
+                    }
+                    currentWidth = window.innerWidth;
+                }
+            });
+
+            // --- Initial state setup on load ---
+            if (window.innerWidth > 768) {
+                handleDesktopSidebarState();
+            } else {
+                handleMobileSidebarState();
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,21 +1,75 @@
-<h2>Add New Leave Balance</h2>
+<div class="container mt-4">
+  <h2 class="mb-4">Add New Leave Balance</h2>
 
-<div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
-<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i> {{ successMessage }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
 
-<form (ngSubmit)="onSubmit()">
-  <div>
-    <label for="employeeId">Employee ID:</label>
-    <input type="number" id="employeeId" [(ngModel)]="leaveBalance.employeeId" name="employeeId" required>
-  </div>
-  <div>
-    <label for="leaveType">Leave Type:</label>
-    <input type="text" id="leaveType" [(ngModel)]="leaveBalance.leaveType" name="leaveType" required>
-  </div>
-  <div>
-    <label for="balance">Balance:</label>
-    <input type="number" id="balance" [(ngModel)]="leaveBalance.balance" name="balance" required>
-  </div>
-  <button type="submit" class="btn btn-success" >Create Leave Balance</button>
-  <button type="button"  [routerLink]="['/leave-balances']">Cancel</button>
-</form>
+  <form (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+      <div class="mb-3">
+          <label for="employeeId" class="form-label">Employee ID:</label>
+          <input
+              type="number"
+              class="form-control"
+              id="employeeId"
+              [(ngModel)]="leaveBalance.employeeId"
+              name="employeeId"
+              required
+              min="1"
+              placeholder="e.g., 1001"
+          >
+          <div class="invalid-feedback">
+              Please enter a valid Employee ID (must be a positive number).
+          </div>
+      </div>
+
+      <div class="mb-3">
+          <label for="leaveType" class="form-label">Leave Type:</label>
+          <input
+              type="text"
+              class="form-control"
+              id="leaveType"
+              [(ngModel)]="leaveBalance.leaveType"
+              name="leaveType"
+              required
+              pattern="[A-Za-z\s]+"
+              title="Leave type can only contain letters and spaces (e.g., Annual Leave)."
+              placeholder="e.g., Casual Leave, Sick Leave"
+          >
+          <div class="invalid-feedback">
+              Please enter a valid Leave Type (letters and spaces only).
+          </div>
+      </div>
+
+      <div class="mb-3">
+          <label for="balance" class="form-label">Balance:</label>
+          <input
+              type="number"
+              class="form-control"
+              id="balance"
+              [(ngModel)]="leaveBalance.balance"
+              name="balance"
+              required
+              min="0"
+              placeholder="e.g., 15"
+          >
+          <div class="invalid-feedback">
+              Please enter a valid balance (minimum 0).
+          </div>
+      </div>
+
+      <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
+          <button type="submit" class="btn btn-primary me-md-2">
+              <i class="bi bi-plus-circle me-1"></i> Create Leave Balance
+          </button>
+          <button type="button" class="btn btn-secondary" [routerLink]="['/leave-balances']">
+              <i class="bi bi-x-circle me-1"></i> Cancel
+          </button>
+      </div>
+  </form>
+</div>

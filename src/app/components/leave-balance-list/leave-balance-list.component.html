@@ -1,42 +1,145 @@
-<h2 class="mb-4">Leave Balances</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leave Balances Overview</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <style>
+    /* Custom CSS for a refined look */
+    body {
+      background-image: url('http://googleusercontent.com/image_collection/image_retrieval/5970494314579479789'); /* Adds the background image */
+      background-size: cover; /* Ensures the image covers the entire background */
+      background-repeat: no-repeat; /* Prevents the image from repeating */
+      background-attachment: fixed; /* Keeps the background fixed while scrolling */
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; /* A clean, modern font */
+      color: #333; /* Sets a default text color for better readability on various backgrounds */
+    }
+    .main-content-card {
+      border-radius: 1rem; /* More pronounced rounded corners for the main card */
+      overflow: hidden; /* Ensures content doesn't overflow corners */
+      background-color: rgba(255, 255, 255, 0.85); /* Adds a semi-transparent white background to the card for better text visibility */
+    }
+    .card-header-custom {
+      color: black; /* Ensures the header text is black */
+      padding: 1.5rem; /* More padding */
+      font-size: 2rem; /* Larger title */
+      font-weight: 600;
+    }
+    .table thead th {
+      background-color: #343a40; /* Darker header for the table */
+      color: white;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .badge {
+      font-size: 0.85em; /* Slightly smaller badge text */
+      padding: 0.4em 0.7em;
+      border-radius: 0.35rem;
+      /* Remove background-color properties from here if you were setting them for badges */
+    }
+    .btn-success {
+      background-color: #28a745; border-color: #28a745;
+    }
+    .btn-success:hover {
+      background-color: #218838; border-color: #1e7e34;
+    }
+    .btn-info {
+      background-color: #17a2b8; border-color: #17a2b8;
+    }
+    .btn-info:hover {
+      background-color: #138496; border-color: #117a8b;
+    }
+    /* Custom text colors for the badges */
+    .text-leave-type {
+      color: #17a2b8; /* Bootstrap info color */
+      font-weight: bold;
+    }
+    .text-balance {
+      color: #28a745; /* Bootstrap success color */
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="d-flex justify-content-center align-items-center min-vh-100">
 
-<div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+  <div class="container my-5 animate__animated animate__fadeIn">
+    <div class="card shadow-lg main-content-card">
+      <div class="card-header-custom text-center">
+        <i class="bi bi-calendar-check-fill me-2"></i> Employee Leave Balances
+      </div>
+      <div class="card-body p-4">
 
-<div *ngIf="leaveBalances.length === 0 && !errorMessage" class="alert alert-info" role="alert">
-    <p class="mb-0">No leave balances found.</p>
-</div>
+        <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center justify-content-center py-3 animate__animated animate__shakeX" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+          <div><strong>Error:</strong> {{ errorMessage }}</div>
+        </div>
 
-<div *ngIf="leaveBalances.length > 0" class="table-responsive">
-    <table class="table table-hover leave-balance-table">
-        <thead>
-            <tr>
+        <div *ngIf="leaveBalances.length === 0 && !errorMessage" class="alert alert-info d-flex align-items-center justify-content-center py-3 animate__animated animate__fadeIn" role="alert">
+          <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+          <p class="mb-0">No leave balances found.</p>
+        </div>
+
+        <div *ngIf="leaveBalances.length > 0" class="table-responsive animate__animated animate__fadeInUp">
+          <table class="table table-striped table-hover align-middle leave-balance-table border">
+            <caption class="text-muted">Current leave balances for all employees.</caption>
+            <thead class="table-dark">
+              <tr>
                 <th>ID</th>
                 <th>Employee ID</th>
                 <th>Employee Name</th>
                 <th>Leave Type</th>
                 <th>Balance</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let lb of leaveBalances">
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let lb of leaveBalances">
                 <td>{{ lb.leaveBalanceId }}</td>
-                <td>{{ lb.employeeId }}</td>
-                <td>{{lb.name}}</td>
-                <td>{{ lb.leaveType }}</td>
-                <td>{{ lb.balance }}</td>
-                <td>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-primary" [routerLink]="['/update-by-leave-id', lb.leaveBalanceId]">Edit</button>
-                        <button type="button" class="btn btn-sm btn-danger" (click)="deleteLeaveBalance(lb.leaveBalanceId)">Delete</button>
-                    </div>
+                <td><span class="fw-semibold text-primary">{{ lb.employeeId }}</span></td>
+                <td><span class="text-dark">{{lb.name}}</span></td>
+                <td><span class="text-leave-type text-capitalize">{{ lb.leaveType }}</span></td>
+                <td><span class="text-balance fs-6">{{ lb.balance }}</span></td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center gap-2">
+                    <button class="btn btn-sm btn-outline-primary" [routerLink]="['/update-by-leave-id', lb.leaveBalanceId]" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Leave Balance">
+                      <i class="bi bi-pencil-square"></i> <span class="d-none d-md-inline">Edit</span>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="deleteLeaveBalance(lb.leaveBalanceId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Leave Balance">
+                      <i class="bi bi-trash"></i> <span class="d-none d-md-inline">Delete</span>
+                    </button>
+                  </div>
                 </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-<div class="d-flex justify-content-start gap-3 mt-4">
-    <button class="btn btn-success" [routerLink]="['/add-leave-balance']">Add New Leave Balance</button>
-    <button class="btn btn-info text-white" [routerLink]="['/update-by-employee-id']">Update By Employee ID</button>
-</div>
+        <hr class="my-4">
+
+        <div class="d-flex justify-content-start gap-3 mt-4">
+          <button class="btn btn-success btn-lg px-4" [routerLink]="['/add-leave-balance']">
+            <i class="bi bi-plus-circle me-2"></i> Add New Leave Balance
+          </button>
+          <button class="btn btn-info text-white btn-lg px-4" [routerLink]="['/update-by-employee-id']">
+            <i class="bi bi-pencil-square me-2"></i> Update By Employee ID
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Initialize tooltips (if you're not doing this in Angular TS)
+    document.addEventListener('DOMContentLoaded', function () {
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    });
+  </script>
+</body>
+</html>
